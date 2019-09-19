@@ -40,6 +40,16 @@ string hashFunction(string input){
     return output;
 }
 
+bool checkPrime(int number){
+    for (int i =2; i <= 128; i++){
+        if(number % i == 0){
+            return true;
+        }
+    }
+    return false;
+}
+
+
 
 
 int main()
