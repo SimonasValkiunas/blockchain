@@ -45,82 +45,71 @@ vector<unsigned long long int> divideIntoSubs(string seedString,int size){
         stringstream ss(seedString); 
         ss >> seed;
         output.push_back(seed);
-        cout << "Not divided";
         return output;
     }else {
         string temp = "";
         int divider = seedString.length() / 16;
         int remainder = seedString.length() % 16;
+
+        if (remainder != 0) {
+            divider++;
+        }
+
+        int countSegments = 0;
+        unsigned long long int seed;
         for(int i = 0; i < seedString.length(); i++){
             temp += seedString[i];
             if(i!=0 && i % size == 0){
-                unsigned long long int seed;
                 stringstream ss(temp); 
                 ss >> seed;
                 output.push_back(seed);
                 temp = "";
+                countSegments++;
+            }
+            if(divider - countSegments == 1 && seedString.length() - i == 1){
+                stringstream ss(temp); 
+                ss >> seed;
+                output.push_back(seed);
             }
         }
-        cout << "Divided"<<endl;
         return output;
     }
 }
 
-
+string generateString(int *arr,int size){
+    string output = "";
+    string options = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
+    for(int i = 0; i < size; i++){
+        srand(*(arr+i));
+        int random = rand() % options.length();
+        output += options[random];
+    }
+    return output;
+}
 
 
 
 //returns 64 length alphanumeric string
-string hashFunction(string input){
+string hashFunction(string input,int size){
 
     string unique = getUniqueNumber(input);
     vector<unsigned long long int> subNumbers = divideIntoSubs(unique,16);
 
-    for(vector<unsigned long long int>::iterator it = subNumbers.begin(); it != subNumbers.end(); ++it){
-        cout << *it << endl;
-        for(int i = 0; i < 30; i++){
-            cout << *(generateRow(*it,30,64)+i) << " ";
+    int seedArray[size];
+
+    for(int i = 0; i < size; i++){
+        for(vector<unsigned long long int>::iterator it = subNumbers.begin(); it != subNumbers.end(); it++){
+            seedArray[i] += *(generateRow(*it,size,64)+i);
         }
-        cout << endl;
     }
 
+    int * pointer = seedArray;
 
-    // // ----------------------------------
-
-    // //Declaring seedVector and seed int
-    // vector<int> seedVector;
-    // long long int seed;
-
-    // //Check if seed is long
-    // if (subNumbers.size() > 1){
-    //     //convert a string of int to int
-    //     for(int i = 0; i < subNumbers.size(); i++){
-    //         stringstream ss(subNumbers.at(i)); 
-    //         ss >> seed;
-    //         seedVector.push_back(seed);
-    //         //use first string as seed
-    //     }
-    //     srand(seedVector[0]);
-    //     cout << seedVector[0] << endl;
-    // }else {
-    //     //use whole string as seed
-    //     stringstream ss(seedString); 
-    //     ss >> seed;
-    //     srand(seed);
+    // for(int i = 0; i < size; i++){
+    //     cout << seedArray[i] << " ";
     // }
 
-    // // ------------------------------------
-
-    // string optionArray = "12345678890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
-    // string output = "";
-
-
-
-    // for(int i = 0; i < 100; i++){
-    //     int random = rand() % optionArray.length();
-    //     output += optionArray[random];
-    // }
-    string output = "";
+    string output = generateString(pointer, size);
     return output;
 }
 
@@ -130,7 +119,7 @@ int main()
     string input = ""; 
     cout << "Enter a string to hash " <<endl;
     cin >> input;
-    cout << hashFunction(input) << endl;
+    cout << hashFunction(input,30) << endl;
     return 0;
 }
 
