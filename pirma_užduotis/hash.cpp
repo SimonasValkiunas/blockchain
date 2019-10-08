@@ -94,20 +94,14 @@ string hashFunction(string input,int size){
 
     string unique = getUniqueNumber(input);
     vector<unsigned long long int> subNumbers = divideIntoSubs(unique,16);
-
     int seedArray[size];
-
+    for(int i =0; i < size; i++) seedArray[i] =0;
     for(int i = 0; i < size; i++){
         for(vector<unsigned long long int>::iterator it = subNumbers.begin(); it != subNumbers.end(); it++){
             seedArray[i] += *(generateRow(*it,size,64)+i);
         }
     }
-
     int * pointer = seedArray;
-
-    // for(int i = 0; i < size; i++){
-    //     cout << seedArray[i] << " ";
-    // }
 
     string output = generateString(pointer, size);
     return output;
@@ -119,7 +113,7 @@ int main()
     string input = ""; 
     cout << "Enter a string to hash " <<endl;
     cin >> input;
-    cout << hashFunction(input,30) << endl;
+    cout << hashFunction(input,64) << endl;
     return 0;
 }
 
