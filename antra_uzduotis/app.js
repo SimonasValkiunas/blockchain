@@ -145,7 +145,8 @@ class Transaction{
     constructor(from_user, to_user, amount){
         this.from_user = from_user;
         this.to_user = to_user;
-        this.amount = amount;
+		this.amount = amount;
+		this.ID = this.hashTransaction();
     }
 
     hashTransaction(){
@@ -187,35 +188,61 @@ class Blockchain{
 	}
 
 
-	mineBlock() {
-		let block = new Block(this.chain[Object.keys(this.chain)[Object.keys(this.chain).length-1]].hashBlock(),Date.now(),this.version,0,this.dificulty_target);
-		while(block.hashBlock().substring(0,this.dificulty_target) !== Array(this.dificulty_target+1).join("0")){
-			block.iterate_nonce();
+	mineBlock(limit = 10000) {
+		let random = Math.floor(Math.random()*this.nextBlocks.length)
+		let isFound = false;
+		for(let i=0; i < limit; i++){
+			if(this.nextBlocks[random].hashBlock().substring(0,this.dificulty_target) !== Array(this.dificulty_target+1).join("0")){
+				this.nextBlocks[random].iterate_nonce();
+			}else {
+				isFound = true;
+				break;
+			}
+			// console.log(this.nextBlocks[random].hashBlock());
 		}
-		this.nextBlock = block;
+		if(isFound){
+			this.chain[this.nextBlocks[random].hashBlock()] = this.nextBlocks[random];
+			for(let i of this.nextBlocks[random].body.transactions){
+				this.transactions.splice(this.transactions.indexOf(i),1);
+			}
+		} else this.mineBlock(limit*2);
 	}
 
-	addBlock(block,size){
-
-		for(let i = 0; i < size; i++){
-			let random = Math.floor(Math.random()*this.transactions.length);
-			block.body.transactions.push(this.transactions[random]);
-			this.transactions.splice(random,1);
+	addBlock(size,blockSampleSize = 5){
+		for(let i =0; i < blockSampleSize; i++){
+			let block = new Block(this.chain[Object.keys(this.chain)[Object.keys(this.chain).length-1]].hashBlock(),Date.now(),this.version,0,this.dificulty_target);
+			for(let i = 0; i < size; i++){
+				let random = Math.floor(Math.random()*this.transactions.length);
+				if(this.transactions[random].ID === this.transactions[random].hashTransaction()){
+					block.body.transactions.push(this.transactions[random]);
+				}
+			}
+			this.nextBlocks.push(block);
 		}
-
-		this.chain[block.hashBlock()] = block;
 	}
 
 	populateChain(blockBodySize){
 		while(this.transactions.length){
+			this.nextBlocks = [];
+			this.addBlock(blockBodySize,5);
 			this.mineBlock();
-			this.addBlock(this.nextBlock,blockBodySize);
 		}
+	}
+
+	verifyTransactions(){
+		let transCount = this.transactions.length;
+		console.log(`Transaction count: ${transCount}`);
+		for(let trans of this.transactions){
+			if(trans.amount > this.users[this.users.indexOf(trans.from_user)].balance) this.transactions.splice(this.transactions[this.transactions.indexOf(trans)],1)
+		}
+		console.log(`Transactions removed: ${transCount-this.transactions.length}`);
 	}
 }
 
 
 let myChain = new Blockchain(1000,10000,'0.1',2);
+
+myChain.verifyTransactions();
 
 myChain.populateChain(100);
 
