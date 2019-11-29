@@ -110,17 +110,15 @@ class User{
             this.name += alphanumerics[Math.floor(Math.random()*alphanumerics.length)]
         }
         
-        this.public_key = "";
-        for(let i = 0; i < 64; i++){
-            this.public_key += alphanumerics[Math.floor(Math.random()*alphanumerics.length)]
-        }
+        this.public_key = sha256(this.name + Date.now())
     }
 }
 
 class Block{
-    constructor(prev_block, timestamp, version, nonce, dificulty_target,transactions = []){
+    constructor(prev_block,timestamp, merkel_hash,version, nonce, dificulty_target,transactions = []){
         this.header = {
-            prev_block : prev_block, 
+			prev_block : prev_block,
+			merkel_hash : merkel_hash,
             timestamp : timestamp,
             version : version,
             nonce : nonce,
@@ -132,7 +130,7 @@ class Block{
     }
 
     hashBlock(){
-        return sha256(this.header.prev_block + this.header.timestamp + this.header.version + this.header.nonce + this.header.dificulty_target);
+        return sha256(this.header.prev_block + this.header.timestamp + this.header.version + this.header.nonce + this.header.dificulty_target + JSON.stringify(this.body));
 	}
 	
 	iterate_nonce(){
@@ -159,8 +157,9 @@ class Blockchain{
 	constructor(userCount, transactionCount, version, diff_level){
 		this.version = version;
 		this.dificulty_target = diff_level;
-		let genesisBlock = new Block(null,Date.now(),this.version,0,this.dificulty_target);
-		this.chain = [];
+		this.chain = {};
+		this.merkel_hash();
+		let genesisBlock = new Block(null,Date.now(),this.merkel,this.version,0,this.dificulty_target);
 		this.chain[genesisBlock.hashBlock()] = genesisBlock;
 		this.users = this.generateUsers(userCount);
 		this.transactions = this.generateTransactions(transactionCount);
@@ -198,7 +197,6 @@ class Blockchain{
 				isFound = true;
 				break;
 			}
-			// console.log(this.nextBlocks[random].hashBlock());
 		}
 		if(isFound){
 			this.chain[this.nextBlocks[random].hashBlock()] = this.nextBlocks[random];
@@ -210,7 +208,8 @@ class Blockchain{
 
 	addBlock(size,blockSampleSize = 5){
 		for(let i =0; i < blockSampleSize; i++){
-			let block = new Block(this.chain[Object.keys(this.chain)[Object.keys(this.chain).length-1]].hashBlock(),Date.now(),this.version,0,this.dificulty_target);
+			this.merkel_hash();
+			let block = new Block(this.chain[Object.keys(this.chain)[Object.keys(this.chain).length-1]].hashBlock(),Date.now(),this.merkel,this.version,0,this.dificulty_target);
 			for(let i = 0; i < size; i++){
 				let random = Math.floor(Math.random()*this.transactions.length);
 				if(this.transactions[random].ID === this.transactions[random].hashTransaction()){
@@ -237,13 +236,44 @@ class Blockchain{
 		}
 		console.log(`Transactions removed: ${transCount-this.transactions.length}`);
 	}
+
+	merkel_hash(lowestLevel = Object.keys(this.chain)){
+
+		let newLevel = [];
+		let int = lowestLevel.length;
+		if(int == 0) {
+			return sha256(JSON.stringify({}));
+		}
+
+		if(int == 1) {
+			this.merkel = lowestLevel[0];
+			return;
+		};
+
+		if(int % 2 == 0){
+			while(lowestLevel.length){
+				newLevel.push(sha256(lowestLevel[0]+lowestLevel[1]));
+				lowestLevel.splice(0,2);
+			}
+			this.merkel_hash(newLevel);
+
+
+		}else if (int % 2 > 0){
+			while(lowestLevel.length > 1){
+				newLevel.push(sha256(lowestLevel[0]+lowestLevel[1]));
+				lowestLevel.splice(0,2);
+			}
+			newLevel.push(sha256(lowestLevel[0]));
+			this.merkel_hash(newLevel);
+		}
+	}
+
+
 }
 
 
-let myChain = new Blockchain(1000,10000,'0.1',2);
-
+let myChain = new Blockchain(1000,1000,'0.1',1);
 myChain.verifyTransactions();
-
 myChain.populateChain(100);
-
-console.log(myChain);
+// myChain.merkel_hash()
+console.log(myChain.chain[Object.keys(myChain.chain)[7]].header)
