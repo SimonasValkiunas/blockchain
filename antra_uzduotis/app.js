@@ -273,7 +273,6 @@ class Blockchain{
 	}
 }
 
-
 let myChain = new Blockchain(1000,1000,'0.1',1);
 myChain.verifyTransactions();
 myChain.populateChain(100);
