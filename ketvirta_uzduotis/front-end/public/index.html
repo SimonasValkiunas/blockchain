@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Smart Contract Page</title>
+
+    <!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.2.1/dist/web3.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+    <script src="main.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+<body>
+    <!-- <div id="test"></div> -->
+    <div class="main">
+        <div class="actors">
+            <div class="buyer">
+                <h1>Buyer's page</h1>
+
+                <div class="order">
+                    <h3>Order's details</h3>
+                    <div class="good">
+                        <select name="Goods" class="goods">
+                            <option value="product_1"> product 1</option>
+                            <option value="product_2"> product 2</option>
+                            <option value="product_3"> product 3</option>
+                        </select>
+                        <input style="width: 30%;" type="number" value = "1" min = "1">
+                    </div>
+
+                    <div class="price_to_pay">
+                        <h3>Price to pay:</h3>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <h3>Actions:</h3>
+                    <button id="send_order">Send order</button>
+                    <button id='safepay'>Pay</button>
+                </div>
+
+            </div>
+            <div class="manufacturer">
+                <h1>Manufacturer's page</h1>
+
+                <div class="orders">
+                    <h3>Current order:</h3>
+                </div>
+                <div class="contract">
+                    <h3>Contract info:</h3>
+                    <select name="Select contract" id="contract_select">
+                        <option value="Deal.json">Deal.sol</option>
+                    </select>
+                    <h5 class="address">Contract Address:</h5>
+                </div>
+
+                <div class="price">
+                    <h3>Price info:</h3>
+                    <input type="text" placeholder="Orders price (in integer)" id="order_price">
+                    <input type="text" placeholder="Shipment price (in integer)" id="shipment_price">
+                    <input type="number" placeholder="Order's number" min='1'>
+                </div>
+
+
+
+                <div class="actions">
+                    <h3>Actions:</h3>
+                    <button id='deploy'>Deploy contract</button>
+                    <button id="ask_price">Ask shipment price</button>
+                    <button id='set_price'>Set order's price</button>
+                    <button id ="send_invoice">Send invoice</button>
+                </div>
+            </div>
+            <div class="courier">
+                <h1>Courier's page</h1>
+                <div class="orders_courier">
+                    <h3>Current order:</h3>
+                </div>
+
+                <div class="price_courier">
+                    <h3>Price info:</h3>
+                    <input type="text" placeholder="Shipment price (in integer)" id="shipment_price_courier">
+                </div>
+                <div class="actions">
+                    <h3>Actions:</h3>
+                    <button id="send_price">Send price</button>
+                    <button id="done">Delivery finished</button>
+                </div>
+            </div>
+        </div>
+        <div class="info">
+            <h1>Account info:</h1>
+            <div class="account_info">
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+</html>
