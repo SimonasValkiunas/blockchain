@@ -132,6 +132,10 @@ class Block{
         return sha256(this.header.prev_block + this.header.timestamp + this.header.version + this.header.nonce + this.header.dificulty_target);
 	}
 	
+
+	//SOME RANDOM CHANGES JUST BECAUSE I CAN
+
+
 	iterate_nonce(){
 		this.header.nonce += 1;
 	}
